@@ -1,4 +1,11 @@
 // import Post from "../../model/post.model.js";
+import {
+  createPost,
+  deletePost,
+  getAllPosts,
+  getPostById,
+  updatePost,
+} from "../../actions/post.action.js";
 
 const postResolver = {
   Query: {
@@ -6,18 +13,13 @@ const postResolver = {
      * @DESC to Get all the Posts
      * @Access Public
      */
-    getAllPosts: async (_, {}, { Post }) => {
-      let posts = await Post.find().populate("author");
-      return posts;
-    },
+    getAllPosts: async () => await getAllPosts(),
+
     /**
      * @DESC to Get single the Post by ID
      * @Access Public
      */
-    getPostById: async (_, { id }, { Post }) => {
-      let post = await Post.findById(id);
-      return post;
-    },
+    getPostById: async (_, { id }) => await getPostById(id),
   },
   Mutation: {
     /**
@@ -29,19 +31,7 @@ const postResolver = {
             }
          * @Access Private
          */
-    createPost: async (_, { newPost }, { Post }) => {
-      // Once the Validations are passed Create New Post
-      const post = new Post({
-        ...newPost,
-      });
-      // Save the post
-      let result = await post.save();
-      result = {
-        ...result.toObject(),
-        id: result._id.toString(),
-      };
-      return result;
-    },
+    createPost: async (_, { newPost }) => await createPost(newPost),
     /**
          * @DESC to Update an Existing Post by ID
          * @Params updatedPost { 
@@ -53,17 +43,7 @@ const postResolver = {
          */
     updatePost: async (_, { updatedPost, id }, { Post }) => {
       try {
-        let post = await Post.findOneAndUpdate(
-          {
-            _id: id,
-          },
-          updatedPost,
-          {
-            new: true,
-          }
-        );
-
-        return post;
+        return await updatePost(id, updatedPost);
       } catch (err) {
         throw new Error(err.message);
       }
@@ -75,13 +55,7 @@ const postResolver = {
      */
     deletePost: async (_, { id }, { Post }) => {
       try {
-        let post = await Post.findOneAndDelete({
-          _id: id,
-        });
-        return {
-          success: true,
-          message: "Post Deleted Successfully.",
-        };
+        return await deletePost(id);
       } catch (err) {
         // throw new GraphQLError(message, {
         //   extensions: { code: "", myCustomExtensions },

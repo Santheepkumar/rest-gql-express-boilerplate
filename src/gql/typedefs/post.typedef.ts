@@ -11,6 +11,7 @@ const postTypedef = `#graphql
     }
 
     type Post {
+        _id: String
         title: String
         description: String
     }
